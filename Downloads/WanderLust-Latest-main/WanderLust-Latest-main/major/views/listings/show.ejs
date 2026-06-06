@@ -1,0 +1,133 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="my-4">
+    <h3><%=listing.title %></h3>
+
+    <div class="card mb-4">
+        <% const showImage = listing?.image?.url || listing?.image || 'https://via.placeholder.com/900x500?text=No+Image'; %>
+        <img src="<%= showImage %>" class="card-img-top" alt="<%= listing.title || 'Listing image' %>" style="height:30rem; object-fit:cover;" />
+    </div>
+
+   
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <p class="card-text text-muted mb-0"><%= listing.description %></p>
+        </div>
+    </div>
+
+    <ul class="list-unstyled mb-4">
+        <li><strong>Price:</strong> &#8377;<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></li>
+        <li><strong>Location:</strong> <%= listing.location %></li>
+        <li><strong>Country:</strong> <%= listing.country %></li>
+    </ul>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Where you'll be</h5>
+            <% if (mapboxToken) { %>
+                <div id="map" class="map-container"></div>
+            <% } else { %>
+                <div class="alert alert-warning mb-0">
+                    Map is not configured. Add your <code>MAPBOX_TOKEN</code> to the <code>.env</code> file and restart the server.
+                    <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noopener noreferrer">Get a free token</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Reviews</h5>
+                    <% if (listing.reviews && listing.reviews.length) { %>
+                        <ul class="list-group list-group-flush">
+                            <% listing.reviews.forEach(review => { %>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span>
+                                            <span class="fw-semibold">Rating:</span>
+                                            <% if (review.author) { %>
+                                                <small class="text-muted ms-2">by <%= review.author.username %></small>
+                                            <% } %>
+                                        </span>
+                                        <span class="badge bg-danger"><%= review.rating %>/5</span>
+                                    </div>
+                                    <p class="mb-1"><%= review.comment %></p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted"><%= new Date(review.createdAt).toLocaleDateString('en-IN') %></small>
+                                        <% if (currentUser && review.author && review.author._id.toString() === currentUser._id.toString()) { %>
+                                            <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" style="display:inline-block">
+                                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                            </form>
+                                        <% } %>
+                                    </div>
+                                </li>
+                            <% }) %>
+                        </ul>
+                    <% } else { %>
+                        <p class="text-muted mb-0">No reviews yet. Be the first to add one.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Leave a Review</h5>
+                    <% if (currentUser) { %>
+                        <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label">Rating</label>
+                                <select name="review[rating]" class="form-select" required>
+                                    <option value="">Choose rating</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a rating.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comment</label>
+                                <textarea name="review[comment]" class="form-control" rows="4" required></textarea>
+                                <div class="invalid-feedback">Please enter a comment.</div>
+                            </div>
+                            <button type="submit" class="btn btn-danger rounded-pill px-4 py-2">Submit Review</button>
+                        </form>
+                    <% } else { %>
+                        <p class="text-muted">You must <a href="/login">log in</a> to add a review.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+
+    <% if (currentUser && listing.author && listing.author._id.toString() === currentUser._id.toString()) { %>
+    <div class="mt-3 d-flex align-items-center gap-2">
+        <a href="/listings/<%=listing._id %>/edit" class="btn btn-danger btn-sm">Edit Listing</a>
+        <form method="POST" action="/listings/<%=listing._id %>?_method=DELETE" style="display:inline-block">
+            <button class="btn btn-dark btn-sm">Delete this listing</button>
+        </form>
+    </div>
+    <% } %>
+</div>
+
+<% if (mapboxToken) { %>
+<% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">') %>
+<% block('scripts').append('<script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>') %>
+<% block('scripts').append('<script src="/js/geocode.js"></script>') %>
+<% block('scripts').append(`<script>window.mapData=${JSON.stringify({
+    token: mapboxToken,
+    location: listing.location,
+    country: listing.country,
+    title: listing.title
+})};</script>`) %>
+<% block('scripts').append('<script src="/js/mapShow.js"></script>') %>
+<% } %>
