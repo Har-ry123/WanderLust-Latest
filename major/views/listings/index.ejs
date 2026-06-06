@@ -1,0 +1,42 @@
+<% layout("layouts/boilerplate") %>
+
+    <h3>All Listings</h3>
+
+    <!-- Map removed from main listings page -->
+<!----  <form method="GET"action="/listings/new">
+    <button>Create New Listing</button>
+</form> -->
+
+<div class="listings-container">
+    <div class="listings-grid">
+    <% for (let listing of allListings) {
+        const imageUrl = listing?.image?.url || (typeof listing.image === 'string' ? listing.image : 'https://via.placeholder.com/600x400?text=No+Image');
+    %>
+        <a href="/listings/<%= listing._id %>" class="listing-link text-decoration-none text-dark">
+            <div class="card listing-card h-100 shadow-sm border-0 overflow-hidden">
+                <div class="card-img-wrapper position-relative">
+                    <img src="<%= imageUrl %>" class="card-img-top" alt="<%= listing.title %>" />
+                    <div class="img-overlay d-flex flex-column justify-content-between">
+                        <span class="overlay-badge">Featured</span>
+                        <div>
+                            <h6 class="overlay-title mb-1"><%= listing.location %></h6>
+                            <small><%= listing.country %></small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title mb-2"><%= listing.title %></h5>
+                    <p class="card-text text-muted mb-3"><%= listing.description %></p>
+                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">₹ <%= listing.price ? listing.price.toLocaleString('en-IN') : 'N/A' %></span>
+                        <small class="text-muted">/ night</small>
+                    </div>
+                </div>
+            </div>
+        </a>
+    <% } %>
+    </div>
+</div>
+
+<!-- Mapbox scripts removed for main listings page -->
+

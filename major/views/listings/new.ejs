@@ -1,0 +1,78 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="row justify-content-center my-5">
+      <div class="col-md-8">
+            <h1 class="mb-4 page-title">Create a New Listing</h1>
+            <div class="card shadow-sm border-0">
+                  <div class="card-body">
+                        <form method="POST" action="/listings" novalidate class="needs-validation">
+                              <div class="mb-3">
+                                    <label class="form-label">Title</label>
+                                    <input name="listing[title]" placeholder="Add a catchy title" type="text" class="form-control" required />
+                              <div class="valid-feedback">Title looks good!</div>
+                                </div>
+
+                              <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea name="listing[description]" placeholder="Describe your listing" class="form-control" rows="4" required> </textarea>
+                                    <div class="invalid-feedback">Please enter a valid description</div>
+                              </div>
+
+                              <div class="mb-3">
+                                    <label class="form-label">Image Link</label>
+                                    <input name="listing[image]" placeholder="https://example.com/image.jpg" type="url" pattern="https?://.+" class="form-control" required />
+                                    <div class="invalid-feedback">Please insert a valid image URL</div>
+                              </div>
+
+                              <div class="row g-3">
+                                    <div class="col-md-6">
+                                          <label class="form-label">Price</label>
+                                          <input name="listing[price]" placeholder="1200" type="number" class="form-control" required />
+                                          <div class="invalid-feedback">Price should be valid</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                          <label class="form-label">Country</label>
+                                          <input name="listing[country]" placeholder="India" type="text" class="form-control" required />
+                                          <div class="invalid-feedback">Country is required</div>
+                                          <div class="valid-feedback">Country looks good!</div>
+                                    </div>
+                                    <div class="col-12">
+                                          <label class="form-label">Location</label>
+                                          <input name="listing[location]" placeholder="City, State" type="text" class="form-control" required />
+                                          <div class="invalid-feedback">Location is required</div>
+                                          <div class="valid-feedback">Location looks good!</div>
+                                    </div>
+                              </div>
+
+                              <% if (mapboxToken) { %>
+                              <div class="mt-4">
+                                    <label class="form-label">Pin location on map</label>
+                                    <p class="text-muted small mb-2">Search, click the map, or drag the marker to set the exact location.</p>
+                                    <div id="map" class="map-container"></div>
+                                    <input type="hidden" name="listing[lng]" id="lng">
+                                    <input type="hidden" name="listing[lat]" id="lat">
+                              </div>
+                              <% } %>
+
+                              <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 mt-4">Add</button>
+                        </form>
+                  </div>
+            </div>
+      </div>
+</div>
+
+<% if (mapboxToken) { %>
+<% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">') %>
+<% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet">') %>
+<% block('scripts').append('<script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>') %>
+<% block('scripts').append('<script src="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>') %>
+<% block('scripts').append('<script src="/js/geocode.js"></script>') %>
+<% block('scripts').append('<script src="/js/mapForm.js"></script>') %>
+<script>
+    window.mapFormData = {
+        token: <%- JSON.stringify(mapboxToken) %>,
+        lng: '',
+        lat: ''
+    };
+</script>
+<% } %>

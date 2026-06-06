@@ -1,0 +1,61 @@
+<% layout("layouts/boilerplate") %>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="p-5">
+                <h1 class="mb-4 fw-bold">SignUp on Wanderlust</h1>
+                <form action="/signup" method="POST" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="username" class="form-label">Username</label>
+                        <input name="username" id="username" type="text" class="form-control form-control-lg" required />
+                        <div class="valid-feedback d-block mt-2 text-success">Looks good!</div>
+                        <div class="invalid-feedback d-block mt-2 text-danger">Please enter a username.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Email</label>
+                        <input name="email" id="email" type="email" class="form-control form-control-lg" required />
+                        <div class="valid-feedback d-block mt-2 text-success">Looks good!</div>
+                        <div class="invalid-feedback d-block mt-2 text-danger">Please enter a valid email.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <input name="password" id="password" type="password" class="form-control form-control-lg" required />
+                        <div class="valid-feedback d-block mt-2 text-success">Looks good!</div>
+                        <div class="invalid-feedback d-block mt-2 text-danger">Please enter a password.</div>
+                    </div>
+
+                    <button class="btn btn-success btn-lg w-100 mt-2" type="submit">Sign Up</button>
+                </form>
+                <p class="text-center mt-4">
+                    Already have an account? <a href="/login" class="text-decoration-none">Login</a>
+                </p>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .input-group-text {
+        background-color: white;
+        border-left: 0;
+    }
+    
+    .form-control.is-valid ~ .input-group-text,
+    .form-control:valid ~ .input-group-text {
+        border-color: #198754;
+        color: #198754;
+    }
+    
+    .form-control.is-invalid ~ .input-group-text,
+    .form-control:invalid ~ .input-group-text {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .invalid-feedback {
+        color: #dc3545;
+    }
+</style>
