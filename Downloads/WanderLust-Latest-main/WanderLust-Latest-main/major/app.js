@@ -5,6 +5,8 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const passport = require('passport');
+require('dotenv').config();
+
 
 const { connectDB } = require('./config/db.js');
 const { sessionOptions } = require('./config/session.js');
