@@ -1,10 +1,32 @@
 {
-  "name": "wanderlust-workspace",
+  "name": "wanderlust",
+  "version": "1.0.0",
+  "description": "WanderLust - a vacation rental site with smart search, maps and AI trip planning",
+  "main": "app.js",
   "private": true,
-  "description": "Runs the WanderLust app from the repository root",
+  "engines": {
+    "node": ">=20.8.0"
+  },
   "scripts": {
-    "postinstall": "cd Downloads/WanderLust-Latest-main/WanderLust-Latest-main/major && npm install",
-    "start": "node Downloads/WanderLust-Latest-main/WanderLust-Latest-main/app.js",
-    "seed": "node Downloads/WanderLust-Latest-main/WanderLust-Latest-main/major/init/index.js"
+    "start": "node app.js",
+    "seed": "node init/index.js",
+    "fix-coordinates": "node scripts/fixCoordinates.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.134.0",
+    "connect-mongo": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "ejs-mate": "^4.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "joi": "^18.2.1",
+    "method-override": "^3.0.0",
+    "mongoose": "^9.6.3",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^9.1.0",
+    "zod": "^4.6.7"
   }
 }
