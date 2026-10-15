@@ -2,6 +2,9 @@ const Listing = require('../models/listing.js');
 const ExpressError = require('../utils/ExpressError.js');
 const wrapAsync = require('../utils/wrapAsync.js');
 const { resolveGeometry, hasValidCoordinates } = require('../utils/geocoding.js');
+const { aiEnabled, parseSearch } = require('../services/ai.js');
+
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const buildMapListings = (listings) =>
     listings
@@ -17,15 +20,40 @@ const buildMapListings = (listings) =>
 
 module.exports.index = wrapAsync(async (req, res) => {
     const search = (req.query.search || '').trim();
+    const ask = (req.query.ask || '').trim().slice(0, 300);
     const filter = {};
-    if (search) {
-        const pattern = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    let aiSearch = null;
+
+    if (ask && aiEnabled()) {
+        try {
+            const filters = await parseSearch(ask);
+            aiSearch = { query: ask, ...filters };
+            const keywords = filters.keywords.map((word) => word.trim()).filter(Boolean);
+            if (keywords.length) {
+                const pattern = new RegExp(keywords.map(escapeRegex).join('|'), 'i');
+                filter.$or = [{ title: pattern }, { description: pattern }, { location: pattern }];
+            }
+            if (filters.country) filter.country = new RegExp(`^${escapeRegex(filters.country)}$`, 'i');
+            if (filters.minPrice != null || filters.maxPrice != null) {
+                filter.price = {};
+                if (filters.minPrice != null) filter.price.$gte = filters.minPrice;
+                if (filters.maxPrice != null) filter.price.$lte = filters.maxPrice;
+            }
+        } catch (err) {
+            if (!err.statusCode) console.error(err);
+            res.locals.error = err.statusCode ? err.message : 'AI search failed. Showing all listings.';
+        }
+    } else if (search) {
+        const pattern = new RegExp(escapeRegex(search), 'i');
         filter.$or = [{ title: pattern }, { location: pattern }, { country: pattern }];
     }
+
     const allListings = await Listing.find(filter);
     res.render('listings/index.ejs', {
         allListings,
         mapListings: buildMapListings(allListings),
+        aiSearch,
+        ask,
     });
 });
 

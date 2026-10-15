@@ -13,7 +13,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Description</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label mb-0">Description</label>
+                            <%- include("../includes/ai-write-button.ejs") %>
+                        </div>
                         <textarea name="listing[description]" class="form-control" rows="4" required><%= listing.description %></textarea>
                         <div class="invalid-feedback">Please enter a valid description</div>
                     </div>
@@ -42,7 +45,6 @@
                         </div>
                     </div>
 
-                    <% if (mapboxToken) { %>
                     <div class="mt-4">
                         <label class="form-label">Pin location on map</label>
                         <p class="text-muted small mb-2">Search, click the map, or drag the marker to update the location.</p>
@@ -50,7 +52,7 @@
                         <input type="hidden" name="listing[lng]" id="lng" value="<%= listing.geometry?.coordinates?.[0] || '' %>">
                         <input type="hidden" name="listing[lat]" id="lat" value="<%= listing.geometry?.coordinates?.[1] || '' %>">
                     </div>
-                    <% } %>
+                    
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-danger rounded-pill px-4 py-2">Update</button>
@@ -75,5 +77,12 @@
         lng: <%- JSON.stringify(listing.geometry?.coordinates?.length === 2 ? listing.geometry.coordinates[0] : '') %>,
         lat: <%- JSON.stringify(listing.geometry?.coordinates?.length === 2 ? listing.geometry.coordinates[1] : '') %>
     };
+</script>
+<% } else { %>
+<% block('head').append('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">') %>
+<% block('scripts').append('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>') %>
+<% block('scripts').append('<script src="/js/leafletMap.js"></script>') %>
+<script>
+    window.leafletData = <%- JSON.stringify({ mode: 'form', lng: listing.geometry?.coordinates?.[0] ?? '', lat: listing.geometry?.coordinates?.[1] ?? '' }) %>;
 </script>
 <% } %>

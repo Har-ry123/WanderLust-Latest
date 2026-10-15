@@ -135,8 +135,31 @@ const fetchFeatures = async (query, { countryCode, types }) => {
     return data.features || [];
 };
 
+// Free OpenStreetMap geocoder, used when no Mapbox token is configured
+const geocodeWithNominatim = async (location, country) => {
+    for (const query of buildSearchQueries(location, country)) {
+        const params = new URLSearchParams({ q: query, format: 'json', limit: '1' });
+        const countryCode = getCountryCode(country);
+        if (countryCode) params.set('countrycodes', countryCode);
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+                headers: { 'User-Agent': 'WanderLust/1.0 (listing geocoder)' },
+            });
+            if (!response.ok) continue;
+            const [place] = await response.json();
+            if (place) {
+                return { type: 'Point', coordinates: [Number(place.lon), Number(place.lat)] };
+            }
+        } catch (err) {
+            console.error('Nominatim geocoding failed:', err.message);
+            return null;
+        }
+    }
+    return null;
+};
+
 module.exports.geocodeLocation = async (location, country) => {
-    if (!MAPBOX_TOKEN) return null;
+    if (!MAPBOX_TOKEN) return geocodeWithNominatim(location, country);
 
     const countryCode = getCountryCode(country);
     const queries = buildSearchQueries(location, country);
@@ -170,8 +193,9 @@ module.exports.geocodeLocation = async (location, country) => {
 };
 
 module.exports.resolveGeometry = async ({ lng, lat, location, country }) => {
-    const parsedLng = Number(lng);
-    const parsedLat = Number(lat);
+    // Number('') is 0, so blank form fields must not count as coordinates
+    const parsedLng = lng === '' || lng == null ? NaN : Number(lng);
+    const parsedLat = lat === '' || lat == null ? NaN : Number(lat);
     if (!Number.isNaN(parsedLng) && !Number.isNaN(parsedLat)) {
         return { type: 'Point', coordinates: [parsedLng, parsedLat] };
     }
@@ -179,7 +203,9 @@ module.exports.resolveGeometry = async ({ lng, lat, location, country }) => {
 };
 
 module.exports.hasValidCoordinates = (coordinates) =>
-    Array.isArray(coordinates) && coordinates.length === 2;
+    Array.isArray(coordinates) &&
+    coordinates.length === 2 &&
+    !(coordinates[0] === 0 && coordinates[1] === 0);
 
 module.exports.buildGeocodeUrl = (location, country, token) => {
     const query = encodeURIComponent(buildSearchQueries(location, country)[0] || location);

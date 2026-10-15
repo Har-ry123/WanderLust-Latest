@@ -1,0 +1,9 @@
+<% if (aiEnabled) { %>
+<button type="button" class="btn btn-sm ai-chip" data-ai-describe>
+    <i class="fa-solid fa-wand-magic-sparkles me-1"></i><span>Write with AI</span>
+</button>
+<% } else { %>
+<span class="ai-chip ai-chip-off small" title="Add ANTHROPIC_API_KEY to major/.env to enable">
+    <i class="fa-solid fa-wand-magic-sparkles me-1"></i>AI writer off
+</span>
+<% } %>

@@ -25,13 +25,29 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title mb-3">Where you'll be</h5>
-            <% if (mapboxToken) { %>
-                <div id="map" class="map-container"></div>
+            <div id="map" class="map-container"></div>
+        </div>
+    </div>
+
+    <div class="card mb-4 ai-card">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                <h5 class="card-title mb-0">
+                    <span class="ai-badge me-1"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span>
+                    Trip planner
+                </h5>
+                <% if (aiEnabled && currentUser) { %>
+                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" data-ai-trip="<%= listing._id %>">
+                        <i class="fa-solid fa-route me-1"></i><span>Plan my 3 days</span>
+                    </button>
+                <% } %>
+            </div>
+            <% if (!aiEnabled) { %>
+                <p class="text-muted mb-0">Get a personalised 3-day plan for <%= listing.location %>. Add <code>ANTHROPIC_API_KEY</code> to <code>major/.env</code> and restart the server to turn it on.</p>
+            <% } else if (!currentUser) { %>
+                <p class="text-muted mb-0"><a href="/login">Log in</a> to get a personalised 3-day plan for <%= listing.location %>.</p>
             <% } else { %>
-                <div class="alert alert-warning mb-0">
-                    Map is not configured. Add your <code>MAPBOX_TOKEN</code> to the <code>.env</code> file and restart the server.
-                    <a href="https://account.mapbox.com/access-tokens/" target="_blank" rel="noopener noreferrer">Get a free token</a>
-                </div>
+                <p class="text-muted mb-0" data-ai-trip-output>Get a personalised 3-day plan for <%= listing.location %>, with local tips.</p>
             <% } %>
         </div>
     </div>
@@ -130,4 +146,16 @@
     title: listing.title
 }).replace(/</g, '\\u003c')};</script>`) %>
 <% block('scripts').append('<script src="/js/mapShow.js"></script>') %>
+<% } else { %>
+<% block('head').append('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">') %>
+<% block('scripts').append('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>') %>
+<% block('scripts').append(`<script>window.leafletData=${JSON.stringify({
+    mode: 'show',
+    lng: listing.geometry?.coordinates?.[0] ?? '',
+    lat: listing.geometry?.coordinates?.[1] ?? '',
+    location: listing.location,
+    country: listing.country,
+    title: listing.title
+}).replace(/</g, '\\u003c')};</script>`) %>
+<% block('scripts').append('<script src="/js/leafletMap.js"></script>') %>
 <% } %>

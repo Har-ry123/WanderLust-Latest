@@ -13,8 +13,11 @@
                                 </div>
 
                               <div class="mb-3">
-                                    <label class="form-label">Description</label>
-                                    <textarea name="listing[description]" placeholder="Describe your listing" class="form-control" rows="4" required> </textarea>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                          <label class="form-label mb-0">Description</label>
+                                          <%- include("../includes/ai-write-button.ejs") %>
+                                    </div>
+                                    <textarea name="listing[description]" placeholder="Describe your listing" class="form-control" rows="4" required></textarea>
                                     <div class="invalid-feedback">Please enter a valid description</div>
                               </div>
 
@@ -44,7 +47,6 @@
                                     </div>
                               </div>
 
-                              <% if (mapboxToken) { %>
                               <div class="mt-4">
                                     <label class="form-label">Pin location on map</label>
                                     <p class="text-muted small mb-2">Search, click the map, or drag the marker to set the exact location.</p>
@@ -52,7 +54,7 @@
                                     <input type="hidden" name="listing[lng]" id="lng">
                                     <input type="hidden" name="listing[lat]" id="lat">
                               </div>
-                              <% } %>
+                              
 
                               <button type="submit" class="btn btn-danger rounded-pill px-4 py-2 mt-4">Add</button>
                         </form>
@@ -74,5 +76,12 @@
         lng: '',
         lat: ''
     };
+</script>
+<% } else { %>
+<% block('head').append('<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">') %>
+<% block('scripts').append('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>') %>
+<% block('scripts').append('<script src="/js/leafletMap.js"></script>') %>
+<script>
+    window.leafletData = <%- JSON.stringify({ mode: 'form', lng: '', lat: '' }) %>;
 </script>
 <% } %>

@@ -15,6 +15,8 @@ const { mapboxLocals } = require('./middleware/mapbox.js');
 const { notFound, errorHandler } = require('./middleware/error.js');
 const listingsRouter = require('./routes/listing.js');
 const userRouter = require('./routes/user.js');
+const aiRouter = require('./routes/ai.js');
+const { aiEnabled } = require('./services/ai.js');
 const { MongoStore } = require('connect-mongo');
 
 
@@ -22,7 +24,10 @@ const app = express();
 const { MAPBOX_TOKEN } = require('./config/mapbox.js');
 
 if (!MAPBOX_TOKEN) {
-    console.warn('MAPBOX_TOKEN is missing — maps will not load. Add it to your .env file.');
+    console.log('No MAPBOX_TOKEN set: using free OpenStreetMap maps instead.');
+}
+if (!aiEnabled()) {
+    console.log('No ANTHROPIC_API_KEY set: AI features are off. Add it to major/.env to enable them.');
 }
 
 connectDB()
@@ -39,6 +44,7 @@ sessionOptions.store = store;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride('_method'));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, 'public')));
@@ -50,9 +56,14 @@ configurePassport();
 
 app.use(flash);
 app.use(mapboxLocals);
+app.use((req, res, next) => {
+    res.locals.aiEnabled = aiEnabled();
+    next();
+});
 
 app.use('/', userRouter);
 app.use('/listings', listingsRouter);
+app.use('/ai', aiRouter);
 
 app.get('/', (req, res) => {
     res.redirect('/listings');
