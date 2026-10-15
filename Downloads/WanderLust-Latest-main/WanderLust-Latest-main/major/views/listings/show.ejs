@@ -36,18 +36,18 @@
                     <span class="ai-badge me-1"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span>
                     Trip planner
                 </h5>
-                <% if (aiEnabled && currentUser) { %>
+                <% if (ai.canPlan && currentUser) { %>
                     <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" data-ai-trip="<%= listing._id %>">
                         <i class="fa-solid fa-route me-1"></i><span>Plan my 3 days</span>
                     </button>
                 <% } %>
             </div>
-            <% if (!aiEnabled) { %>
-                <p class="text-muted mb-0">Get a personalised 3-day plan for <%= listing.location %>. Add <code>ANTHROPIC_API_KEY</code> to <code>major/.env</code> and restart the server to turn it on.</p>
+            <% if (!ai.canPlan) { %>
+                <p class="text-muted mb-0">Get a free personalised 3-day plan for <%= listing.location %>: start <a href="https://ollama.com" target="_blank" rel="noopener noreferrer">Ollama</a> on this computer and refresh the page.</p>
             <% } else if (!currentUser) { %>
                 <p class="text-muted mb-0"><a href="/login">Log in</a> to get a personalised 3-day plan for <%= listing.location %>.</p>
             <% } else { %>
-                <p class="text-muted mb-0" data-ai-trip-output>Get a personalised 3-day plan for <%= listing.location %>, with local tips.</p>
+                <p class="text-muted mb-0" data-ai-trip-output>Get a personalised 3-day plan for <%= listing.location %>, with local tips. <small>(<%= ai.label %>)</small></p>
             <% } %>
         </div>
     </div>

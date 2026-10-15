@@ -7,17 +7,16 @@
     </div>
     <form action="/listings" method="GET" class="d-flex gap-2 flex-column flex-sm-row">
         <input type="text" name="ask" value="<%= ask %>" maxlength="300" class="form-control form-control-lg"
-            placeholder="e.g. a cozy mountain cabin in the US under ₹2000 a night" <%= aiEnabled ? '' : 'disabled' %> />
-        <button class="btn btn-danger btn-lg px-4 ai-submit" type="submit" <%= aiEnabled ? '' : 'disabled' %>>
+            placeholder="e.g. a cozy mountain cabin in the US under ₹2000 a night" />
+        <button class="btn btn-danger btn-lg px-4 ai-submit" type="submit">
             <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Find stays
         </button>
     </form>
-    <% if (!aiEnabled) { %>
-        <small class="text-muted d-block mt-2">AI search is off. Add <code>ANTHROPIC_API_KEY</code> to <code>major/.env</code> and restart the server to turn it on.</small>
-    <% } %>
+    <small class="text-muted d-block mt-2">Powered by <%= ai.label %></small>
     <% if (aiSearch) { %>
         <div class="mt-3 d-flex flex-wrap align-items-center gap-2">
             <span class="text-muted small"><%= aiSearch.summary %></span>
+            <% aiSearch.places.forEach((place) => { %><span class="badge rounded-pill text-bg-light border"><i class="fa-solid fa-location-dot me-1"></i><%= place %></span><% }) %>
             <% aiSearch.keywords.forEach((word) => { %><span class="badge rounded-pill text-bg-light border"><%= word %></span><% }) %>
             <% if (aiSearch.country) { %><span class="badge rounded-pill text-bg-light border"><i class="fa-solid fa-earth-asia me-1"></i><%= aiSearch.country %></span><% } %>
             <% if (aiSearch.minPrice != null) { %><span class="badge rounded-pill text-bg-light border">from ₹<%= aiSearch.minPrice.toLocaleString('en-IN') %></span><% } %>

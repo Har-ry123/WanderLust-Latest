@@ -16,7 +16,7 @@ const { notFound, errorHandler } = require('./middleware/error.js');
 const listingsRouter = require('./routes/listing.js');
 const userRouter = require('./routes/user.js');
 const aiRouter = require('./routes/ai.js');
-const { aiEnabled } = require('./services/ai.js');
+const { getAiStatus } = require('./services/ai.js');
 const { MongoStore } = require('connect-mongo');
 
 
@@ -26,9 +26,12 @@ const { MAPBOX_TOKEN } = require('./config/mapbox.js');
 if (!MAPBOX_TOKEN) {
     console.log('No MAPBOX_TOKEN set: using free OpenStreetMap maps instead.');
 }
-if (!aiEnabled()) {
-    console.log('No ANTHROPIC_API_KEY set: AI features are off. Add it to major/.env to enable them.');
-}
+getAiStatus().then(({ label, canPlan }) => {
+    console.log(`AI features: ${label}`);
+    if (!canPlan) {
+        console.log('Tip: start Ollama (free, https://ollama.com) with "ollama pull llama3.2" for the AI writer and trip planner.');
+    }
+});
 
 connectDB()
     .then(() => console.log('connected to database'))
@@ -56,8 +59,8 @@ configurePassport();
 
 app.use(flash);
 app.use(mapboxLocals);
-app.use((req, res, next) => {
-    res.locals.aiEnabled = aiEnabled();
+app.use(async (req, res, next) => {
+    res.locals.ai = await getAiStatus();
     next();
 });
 

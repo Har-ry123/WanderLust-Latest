@@ -2,7 +2,8 @@ const Listing = require('../models/listing.js');
 const ExpressError = require('../utils/ExpressError.js');
 const wrapAsync = require('../utils/wrapAsync.js');
 const { resolveGeometry, hasValidCoordinates } = require('../utils/geocoding.js');
-const { aiEnabled, parseSearch } = require('../services/ai.js');
+const { smartSearch } = require('../services/ai.js');
+const { expandKeyword } = require('../services/searchRules.js');
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -24,24 +25,38 @@ module.exports.index = wrapAsync(async (req, res) => {
     const filter = {};
     let aiSearch = null;
 
-    if (ask && aiEnabled()) {
-        try {
-            const filters = await parseSearch(ask);
-            aiSearch = { query: ask, ...filters };
-            const keywords = filters.keywords.map((word) => word.trim()).filter(Boolean);
-            if (keywords.length) {
-                const pattern = new RegExp(keywords.map(escapeRegex).join('|'), 'i');
-                filter.$or = [{ title: pattern }, { description: pattern }, { location: pattern }];
-            }
-            if (filters.country) filter.country = new RegExp(`^${escapeRegex(filters.country)}$`, 'i');
-            if (filters.minPrice != null || filters.maxPrice != null) {
-                filter.price = {};
-                if (filters.minPrice != null) filter.price.$gte = filters.minPrice;
-                if (filters.maxPrice != null) filter.price.$lte = filters.maxPrice;
-            }
-        } catch (err) {
-            if (!err.statusCode) console.error(err);
-            res.locals.error = err.statusCode ? err.message : 'AI search failed. Showing all listings.';
+    if (ask) {
+        const [knownCountries, knownLocations] = await Promise.all([
+            Listing.distinct('country'),
+            Listing.distinct('location'),
+        ]);
+        const filters = await smartSearch(ask, {
+            knownCountries: knownCountries.filter(Boolean),
+            knownLocations: knownLocations.filter(Boolean),
+        });
+        aiSearch = { query: ask, ...filters };
+
+        // "beach" also matches seaside, ocean, coast...
+        let words = filters.keywords.flatMap(expandKeyword).map((word) => word.trim()).filter(Boolean);
+        const understoodNothing =
+            !words.length && !filters.places.length && !filters.country &&
+            filters.minPrice == null && filters.maxPrice == null;
+        // a named place (e.g. Manali) must match; keywords are "any of"
+        if (filters.places.length) {
+            filter.location = new RegExp(filters.places.map(escapeRegex).join('|'), 'i');
+        }
+        if (understoodNothing) {
+            words = (ask.toLowerCase().match(/[a-z]{4,}/g) || []).slice(0, 8);
+        }
+        if (words.length) {
+            const pattern = new RegExp(words.map(escapeRegex).join('|'), 'i');
+            filter.$or = [{ title: pattern }, { description: pattern }, { location: pattern }];
+        }
+        if (filters.country) filter.country = new RegExp(`^${escapeRegex(filters.country)}$`, 'i');
+        if (filters.minPrice != null || filters.maxPrice != null) {
+            filter.price = {};
+            if (filters.minPrice != null) filter.price.$gte = filters.minPrice;
+            if (filters.maxPrice != null) filter.price.$lte = filters.maxPrice;
         }
     } else if (search) {
         const pattern = new RegExp(escapeRegex(search), 'i');
