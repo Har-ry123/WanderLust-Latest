@@ -21,6 +21,8 @@ const { MongoStore } = require('connect-mongo');
 
 
 const app = express();
+// hosts like Render terminate HTTPS at a proxy; trust it so secure cookies work
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 const { MAPBOX_TOKEN } = require('./config/mapbox.js');
 
 if (!MAPBOX_TOKEN) {
@@ -35,7 +37,11 @@ getAiStatus().then(({ label, canPlan }) => {
 
 connectDB()
     .then(() => console.log('connected to database'))
-    .catch((err) => console.log('Error connecting to database', err));
+    .catch((err) => {
+        // fail loudly so the host shows the error instead of serving a broken site
+        console.error('Error connecting to database:', err.message);
+        process.exit(1);
+    });
 // Mongo-backed session store (connect-mongo v6)
 const store = MongoStore.create({
     mongoUrl: dbURL,
