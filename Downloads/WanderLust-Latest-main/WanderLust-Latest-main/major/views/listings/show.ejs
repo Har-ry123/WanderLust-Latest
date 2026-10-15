@@ -141,6 +141,7 @@
 <% block('scripts').append('<script src="/js/geocode.js"></script>') %>
 <% block('scripts').append(`<script>window.mapData=${JSON.stringify({
     token: mapboxToken,
+    coordinates: listing.geometry?.coordinates || null,
     location: listing.location,
     country: listing.country,
     title: listing.title
