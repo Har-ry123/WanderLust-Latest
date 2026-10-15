@@ -1,5 +1,5 @@
 module.exports.sessionOptions = {
-    secret: "mysupersecretcode",
+    secret: process.env.SECRET || "mysupersecretcode",
     resave: false,
     saveUninitialized: true,
     cookie: {

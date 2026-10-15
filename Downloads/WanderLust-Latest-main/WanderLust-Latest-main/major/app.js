@@ -5,10 +5,9 @@ const methodOverride = require('method-override');
 const ejsMate = require('ejs-mate');
 const session = require('express-session');
 const passport = require('passport');
-require('dotenv').config();
 
 
-const { connectDB } = require('./config/db.js');
+const { connectDB, dbURL } = require('./config/db.js');
 const { sessionOptions } = require('./config/session.js');
 const { configurePassport } = require('./config/passport.js');
 const { flash } = require('./middleware/flash.js');
@@ -16,7 +15,7 @@ const { mapboxLocals } = require('./middleware/mapbox.js');
 const { notFound, errorHandler } = require('./middleware/error.js');
 const listingsRouter = require('./routes/listing.js');
 const userRouter = require('./routes/user.js');
-const MongoStore = require('connect-mongo');
+const { MongoStore } = require('connect-mongo');
 
 
 const app = express();
@@ -29,35 +28,14 @@ if (!MAPBOX_TOKEN) {
 connectDB()
     .then(() => console.log('connected to database'))
     .catch((err) => console.log('Error connecting to database', err));
-// Database URL (use Atlas if provided, otherwise local)
-const dbURL = process.env.ATLASDB_URL || 'mongodb://127.0.0.1:27017/WanderLust';
-
-// Create a Mongo-backed session store (support both new and older connect-mongo APIs)
-let store;
-try {
-    if (MongoStore && typeof MongoStore.create === 'function') {
-        // connect-mongo v4+ API
-        store = MongoStore.create({
-            mongoUrl: dbURL,
-            crypto: { secret: sessionOptions.secret },
-            touchAfter: 24 * 3600
-        });
-    } else if (typeof MongoStore === 'function') {
-        // older connect-mongo returns a function(session)
-        const Store = MongoStore(session);
-        store = new Store({ url: dbURL, touchAfter: 24 * 3600, secret: sessionOptions.secret });
-    } else {
-        // fallback: try common property
-        const Store = MongoStore && MongoStore.MongoStore;
-        if (Store) {
-            store = new Store({ mongoUrl: dbURL, touchAfter: 24 * 3600 });
-        }
-    }
-} catch (err) {
-    console.error('Failed to create MongoStore:', err);
-}
-
-if (store) sessionOptions.store = store;
+// Mongo-backed session store (connect-mongo v6)
+const store = MongoStore.create({
+    mongoUrl: dbURL,
+    crypto: { secret: sessionOptions.secret },
+    touchAfter: 24 * 3600,
+});
+store.on('error', (err) => console.error('Session store error:', err));
+sessionOptions.store = store;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));

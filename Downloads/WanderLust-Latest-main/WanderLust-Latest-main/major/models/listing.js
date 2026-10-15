@@ -50,5 +50,12 @@ const listingSchema = new Schema({
         },
     ],
 });
+// Remove a listing's reviews along with it
+listingSchema.post('findOneAndDelete', async (listing) => {
+    if (listing && listing.reviews.length) {
+        await mongoose.model('Review').deleteMany({ _id: { $in: listing.reviews } });
+    }
+});
+
 const Listing=mongoose.model("Listing",listingSchema);
 module.exports=Listing;

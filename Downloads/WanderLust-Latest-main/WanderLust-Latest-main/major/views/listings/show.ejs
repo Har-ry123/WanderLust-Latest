@@ -128,6 +128,6 @@
     location: listing.location,
     country: listing.country,
     title: listing.title
-})};</script>`) %>
+}).replace(/</g, '\\u003c')};</script>`) %>
 <% block('scripts').append('<script src="/js/mapShow.js"></script>') %>
 <% } %>

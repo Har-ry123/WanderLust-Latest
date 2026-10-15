@@ -16,7 +16,13 @@ const buildMapListings = (listings) =>
         }));
 
 module.exports.index = wrapAsync(async (req, res) => {
-    const allListings = await Listing.find({});
+    const search = (req.query.search || '').trim();
+    const filter = {};
+    if (search) {
+        const pattern = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        filter.$or = [{ title: pattern }, { location: pattern }, { country: pattern }];
+    }
+    const allListings = await Listing.find(filter);
     res.render('listings/index.ejs', {
         allListings,
         mapListings: buildMapListings(allListings),

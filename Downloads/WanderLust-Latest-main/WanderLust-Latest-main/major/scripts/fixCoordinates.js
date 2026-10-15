@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const mongoose = require('mongoose');
 const Listing = require('../models/listing.js');
 const { geocodeLocation } = require('../utils/geocoding.js');

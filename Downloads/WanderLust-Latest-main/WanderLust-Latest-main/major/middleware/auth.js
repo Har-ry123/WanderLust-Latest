@@ -2,6 +2,6 @@ module.exports.isLoggedIn = (req, res, next) => {
     if (req.isAuthenticated && req.isAuthenticated()) {
         return next();
     }
-    req.session.error = 'You must be logged in to create a listing!';
+    req.session.error = 'You must be logged in to do that!';
     return res.redirect('/login');
 };
