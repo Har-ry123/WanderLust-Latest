@@ -1,0 +1,79 @@
+<%
+  const currentAsk = typeof ask !== 'undefined' ? ask : '';
+  const categories = [
+    { label: 'Trending', icon: 'fa-fire', ask: '' },
+    { label: 'Beaches', icon: 'fa-umbrella-beach', ask: 'beach' },
+    { label: 'Mountains', icon: 'fa-mountain-sun', ask: 'mountain' },
+    { label: 'Cabins', icon: 'fa-house-chimney', ask: 'cabin' },
+    { label: 'Iconic cities', icon: 'fa-city', ask: 'city' },
+    { label: 'Castles', icon: 'fa-chess-rook', ask: 'castle' },
+    { label: 'Amazing pools', icon: 'fa-water-ladder', ask: 'pool' },
+    { label: 'Islands', icon: 'fa-sun', ask: 'island' },
+    { label: 'Lakefront', icon: 'fa-water', ask: 'lake' },
+    { label: 'Camping', icon: 'fa-campground', ask: 'camping' },
+    { label: 'Farms', icon: 'fa-tractor', ask: 'farm' },
+    { label: 'Luxe', icon: 'fa-gem', ask: 'luxury' },
+  ];
+  const onListings = typeof allListings !== 'undefined';
+%>
+<header class="site-header">
+  <nav class="navbar">
+    <div class="shell d-flex align-items-center gap-3 w-100">
+      <a class="brand" href="/listings">
+        <span class="brand-mark"><i class="fa-solid fa-compass"></i></span>
+        <span class="brand-name">WanderLust</span>
+      </a>
+
+      <form class="nav-search d-none d-lg-flex" action="/listings" method="GET" role="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" name="ask" value="<%= currentAsk %>" placeholder="Where to? Try “beach villa in India under 5k”" aria-label="Search stays">
+        <button type="submit" aria-label="Search"><i class="fa-solid fa-arrow-right"></i></button>
+      </form>
+
+      <div class="nav-actions ms-auto">
+        <a class="nav-host d-none d-md-inline-flex" href="/listings/new">
+          <i class="fa-solid fa-plus"></i>Harry's Horizon
+        </a>
+        <% if (!currentUser) { %>
+          <a class="nav-link-plain" href="/login">Log in</a>
+          <a class="btn btn-ink" href="/signup">Sign up</a>
+        <% } else { %>
+          <div class="dropdown">
+            <button class="user-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-bars"></i>
+              <span class="avatar"><%= currentUser.username.charAt(0).toUpperCase() %></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end user-menu">
+              <li class="dropdown-header">Signed in as <strong><%= currentUser.username %></strong></li>
+              <li><a class="dropdown-item" href="/listings/new"><i class="fa-solid fa-plus"></i>Add a listing</a></li>
+              <li><a class="dropdown-item" href="/listings"><i class="fa-solid fa-compass"></i>Explore stays</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log out</a></li>
+            </ul>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </nav>
+
+  <% if (onListings) { %>
+  <div class="category-bar">
+    <div class="shell d-flex align-items-center gap-4">
+      <div class="category-scroll">
+        <% categories.forEach((c) => { const active = currentAsk.toLowerCase() === c.ask; %>
+          <a class="category<%= active ? ' active' : '' %>" href="/listings<%= c.ask ? `?ask=${encodeURIComponent(c.ask)}` : '' %>">
+            <i class="fa-solid <%= c.icon %>"></i>
+            <span><%= c.label %></span>
+          </a>
+        <% }) %>
+      </div>
+      <label class="tax-toggle d-none d-md-flex" for="displayTotalAfterTaxes">
+        <span>Show total incl. taxes</span>
+        <span class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="displayTotalAfterTaxes">
+        </span>
+      </label>
+    </div>
+  </div>
+  <% } %>
+</header>

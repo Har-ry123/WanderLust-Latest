@@ -1,0 +1,91 @@
+<% layout("layouts/boilerplate") %>
+<%
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=60';
+  const ratingOf = (listing) => {
+    const ratings = (listing.reviews || []).map((r) => r.rating).filter(Boolean);
+    return ratings.length ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : null;
+  };
+%>
+
+<section class="hero <%= aiSearch ? 'hero-compact' : '' %>">
+    <div class="shell">
+        <% if (!aiSearch) { %>
+            <p class="eyebrow">Stays worth the journey</p>
+            <h1 class="hero-title">Find a place that feels<br class="d-none d-md-inline"> like a story.</h1>
+            <p class="hero-sub">Beachfront cottages, mountain cabins and city lofts, hand-picked from around the world.</p>
+        <% } %>
+
+        <form action="/listings" method="GET" class="hero-search">
+            <span class="hero-search-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+            <input type="text" name="ask" value="<%= ask %>" maxlength="300"
+                placeholder="Describe your dream trip, e.g. a cozy mountain cabin in the US under ₹2000" aria-label="Describe your dream trip" />
+            <button class="btn btn-accent" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i><span class="d-none d-sm-inline ms-2">Find stays</span>
+            </button>
+        </form>
+        <p class="hero-note"><i class="fa-solid fa-microchip"></i> Smart search powered by <%= ai.label %></p>
+
+        <% if (aiSearch) { %>
+            <div class="search-summary">
+                <span class="summary-text"><%= aiSearch.summary %></span>
+                <% aiSearch.places.forEach((place) => { %><span class="chip"><i class="fa-solid fa-location-dot"></i><%= place %></span><% }) %>
+                <% aiSearch.keywords.forEach((word) => { %><span class="chip"><%= word %></span><% }) %>
+                <% if (aiSearch.country) { %><span class="chip"><i class="fa-solid fa-earth-asia"></i><%= aiSearch.country %></span><% } %>
+                <% if (aiSearch.minPrice != null) { %><span class="chip">from ₹<%= aiSearch.minPrice.toLocaleString('en-IN') %></span><% } %>
+                <% if (aiSearch.maxPrice != null) { %><span class="chip">up to ₹<%= aiSearch.maxPrice.toLocaleString('en-IN') %></span><% } %>
+                <a href="/listings" class="clear-link">Clear</a>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<section class="shell listings-section">
+    <div class="section-head">
+        <h2 class="section-title">
+            <%= aiSearch ? `${allListings.length} ${allListings.length === 1 ? 'stay matches' : 'stays match'} your trip` : 'Featured stays' %>
+        </h2>
+        <% if (!aiSearch) { %><span class="section-meta"><%= allListings.length %> places to stay</span><% } %>
+    </div>
+
+    <% if (!allListings.length) { %>
+        <div class="empty-state">
+            <i class="fa-regular fa-compass"></i>
+            <h3>Nothing matches that yet</h3>
+            <p>Try loosening the budget or location, or <a href="/listings">browse every stay</a>.</p>
+        </div>
+    <% } %>
+
+    <div class="listing-grid">
+    <% for (let listing of allListings) {
+        const imageUrl = listing?.image?.url || (typeof listing.image === 'string' ? listing.image : FALLBACK_IMAGE);
+        const rating = ratingOf(listing);
+    %>
+        <a href="/listings/<%= listing._id %>" class="listing-link">
+            <article class="stay-card">
+                <div class="stay-media">
+                    <img src="<%= imageUrl %>" alt="<%= listing.title %>" loading="lazy"
+                        onerror="this.onerror=null;this.src='<%= FALLBACK_IMAGE %>'" />
+                    <% if (rating && rating >= 4.5) { %><span class="stay-badge">Guest favourite</span><% } %>
+                </div>
+                <div class="stay-body">
+                    <div class="stay-row">
+                        <h3 class="stay-place"><%= listing.location %><%= listing.country ? `, ${listing.country}` : '' %></h3>
+                        <span class="stay-rating">
+                            <i class="fa-solid fa-star"></i><%= rating || 'New' %>
+                        </span>
+                    </div>
+                    <p class="stay-title"><%= listing.title %></p>
+                    <p class="stay-price" data-price="<%= listing.price || 0 %>">
+                        <% if (listing.price) { %>
+                            <strong class="price-value">₹<%= listing.price.toLocaleString('en-IN') %></strong>
+                            <span class="price-unit">night</span>
+                        <% } else { %>
+                            <strong>Price on request</strong>
+                        <% } %>
+                    </p>
+                </div>
+            </article>
+        </a>
+    <% } %>
+    </div>
+</section>

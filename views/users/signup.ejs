@@ -1,0 +1,34 @@
+<% layout("layouts/boilerplate") %>
+<section class="shell auth-page">
+    <div class="auth-card">
+        <div class="auth-visual" style="background-image:url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=70')">
+            <div class="auth-visual-text">
+                <p class="eyebrow eyebrow-light">WanderLust</p>
+                <h2>Stays worth the journey, hand-picked around the world.</h2>
+            </div>
+        </div>
+        <div class="auth-form">
+            <h1 class="page-title">Create your account</h1>
+            <p class="text-soft mb-4">Join to save trips, write reviews and host your own place.</p>
+            <form action="/signup" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input name="username" id="username" type="text" class="form-control form-control-lg" autocomplete="username" required />
+                    <div class="invalid-feedback">Please choose a username.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input name="email" id="email" type="email" class="form-control form-control-lg" autocomplete="email" required />
+                    <div class="invalid-feedback">Please enter a valid email.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input name="password" id="password" type="password" class="form-control form-control-lg" autocomplete="new-password" required />
+                    <div class="invalid-feedback">Please choose a password.</div>
+                </div>
+                <button class="btn btn-accent w-100 btn-lg-soft" type="submit">Sign up</button>
+            </form>
+            <p class="auth-switch">Already have an account? <a href="/login">Log in</a></p>
+        </div>
+    </div>
+</section>
