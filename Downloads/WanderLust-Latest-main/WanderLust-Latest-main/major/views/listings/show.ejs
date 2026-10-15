@@ -1,139 +1,167 @@
 <% layout("layouts/boilerplate") %>
+<%
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=70';
+  const showImage = listing?.image?.url || (typeof listing.image === 'string' ? listing.image : FALLBACK_IMAGE);
+  const reviews = listing.reviews || [];
+  const avg = reviews.length ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1) : null;
+  const isOwner = currentUser && listing.author && listing.author._id.toString() === currentUser._id.toString();
+  const hostName = listing.author?.username || 'WanderLust';
+%>
 
-<div class="my-4">
-    <h3><%=listing.title %></h3>
-
-    <div class="card mb-4">
-        <% const showImage = listing?.image?.url || listing?.image || 'https://via.placeholder.com/900x500?text=No+Image'; %>
-        <img src="<%= showImage %>" class="card-img-top" alt="<%= listing.title || 'Listing image' %>" style="height:30rem; object-fit:cover;" />
-    </div>
-
-   
-
-    <div class="card mb-4">
-        <div class="card-body">
-            <p class="card-text text-muted mb-0"><%= listing.description %></p>
+<article class="shell detail">
+    <header class="detail-head">
+        <h1 class="detail-title"><%= listing.title %></h1>
+        <div class="detail-meta">
+            <span><i class="fa-solid fa-star"></i> <%= avg || 'New' %></span>
+            <span class="dot">·</span>
+            <a href="#reviews"><%= reviews.length %> <%= reviews.length === 1 ? 'review' : 'reviews' %></a>
+            <span class="dot">·</span>
+            <span><i class="fa-solid fa-location-dot"></i> <%= listing.location %>, <%= listing.country %></span>
         </div>
+    </header>
+
+    <div class="detail-media">
+        <img src="<%= showImage %>" alt="<%= listing.title %>" onerror="this.onerror=null;this.src='<%= FALLBACK_IMAGE %>'" />
     </div>
 
-    <ul class="list-unstyled mb-4">
-        <li><strong>Price:</strong> &#8377;<%= listing.price ? listing.price.toLocaleString("en-IN") : 'N/A' %></li>
-        <li><strong>Location:</strong> <%= listing.location %></li>
-        <li><strong>Country:</strong> <%= listing.country %></li>
-    </ul>
+    <div class="detail-grid">
+        <div class="detail-main">
+            <section class="host-row">
+                <span class="avatar avatar-lg"><%= hostName.charAt(0).toUpperCase() %></span>
+                <div>
+                    <h2 class="host-title">Hosted by <%= hostName %></h2>
+                    <p class="text-soft mb-0"><%= listing.location %> · <%= listing.country %></p>
+                </div>
+            </section>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title mb-3">Where you'll be</h5>
-            <div id="map" class="map-container"></div>
-        </div>
-    </div>
+            <section class="detail-section">
+                <p class="detail-description"><%= listing.description %></p>
+                <ul class="highlights">
+                    <li><i class="fa-solid fa-key"></i><div><strong>Self check-in</strong><span>Settle in on your own schedule.</span></div></li>
+                    <li><i class="fa-solid fa-location-dot"></i><div><strong>Great location</strong><span>Right in <%= listing.location %>.</span></div></li>
+                    <li><i class="fa-regular fa-calendar"></i><div><strong>Flexible stays</strong><span>Plan a weekend or a whole week.</span></div></li>
+                </ul>
+            </section>
 
-    <div class="card mb-4 ai-card">
-        <div class="card-body">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-                <h5 class="card-title mb-0">
-                    <span class="ai-badge me-1"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span>
-                    Trip planner
-                </h5>
-                <% if (ai.canPlan && currentUser) { %>
-                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-3" data-ai-trip="<%= listing._id %>">
-                        <i class="fa-solid fa-route me-1"></i><span>Plan my 3 days</span>
-                    </button>
-                <% } %>
-            </div>
-            <% if (!ai.canPlan) { %>
-                <p class="text-muted mb-0">Get a free personalised 3-day plan for <%= listing.location %>: start <a href="https://ollama.com" target="_blank" rel="noopener noreferrer">Ollama</a> on this computer and refresh the page.</p>
-            <% } else if (!currentUser) { %>
-                <p class="text-muted mb-0"><a href="/login">Log in</a> to get a personalised 3-day plan for <%= listing.location %>.</p>
-            <% } else { %>
-                <p class="text-muted mb-0" data-ai-trip-output>Get a personalised 3-day plan for <%= listing.location %>, with local tips. <small>(<%= ai.label %>)</small></p>
-            <% } %>
-        </div>
-    </div>
+            <section class="detail-section">
+                <h3 class="block-title">Where you'll be</h3>
+                <p class="text-soft"><%= listing.location %>, <%= listing.country %></p>
+                <div id="map" class="map-container"></div>
+            </section>
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Reviews</h5>
-                    <% if (listing.reviews && listing.reviews.length) { %>
-                        <ul class="list-group list-group-flush">
-                            <% listing.reviews.forEach(review => { %>
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span>
-                                            <span class="fw-semibold">Rating:</span>
-                                            <% if (review.author) { %>
-                                                <small class="text-muted ms-2">by <%= review.author.username %></small>
-                                            <% } %>
-                                        </span>
-                                        <span class="badge bg-danger"><%= review.rating %>/5</span>
-                                    </div>
-                                    <p class="mb-1"><%= review.comment %></p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted"><%= new Date(review.createdAt).toLocaleDateString('en-IN') %></small>
-                                        <% if (currentUser && review.author && review.author._id.toString() === currentUser._id.toString()) { %>
-                                            <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" style="display:inline-block">
-                                                <button class="btn btn-sm btn-outline-danger">Delete</button>
-                                            </form>
-                                        <% } %>
-                                    </div>
-                                </li>
-                            <% }) %>
-                        </ul>
+            <section class="detail-section" id="trip">
+                <div class="ai-panel">
+                    <div class="ai-panel-head">
+                        <div>
+                            <span class="ai-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> AI</span>
+                            <h3 class="block-title mt-2 mb-1">Your 3-day trip planner</h3>
+                        </div>
+                        <% if (ai.canPlan && currentUser) { %>
+                            <button type="button" class="btn btn-accent btn-sm" data-ai-trip="<%= listing._id %>">
+                                <i class="fa-solid fa-route me-1"></i><span>Plan my 3 days</span>
+                            </button>
+                        <% } %>
+                    </div>
+                    <% if (!ai.canPlan) { %>
+                        <p class="text-soft mb-0">Get a free personalised plan for <%= listing.location %>: start <a href="https://ollama.com" target="_blank" rel="noopener noreferrer">Ollama</a> on this computer and refresh the page.</p>
+                    <% } else if (!currentUser) { %>
+                        <p class="text-soft mb-0"><a href="/login">Log in</a> to get a personalised plan for <%= listing.location %>, with local tips.</p>
                     <% } else { %>
-                        <p class="text-muted mb-0">No reviews yet. Be the first to add one.</p>
+                        <p class="text-soft mb-0" data-ai-trip-output>A day-by-day plan for <%= listing.location %>, with local tips. <small>(<%= ai.label %>)</small></p>
                     <% } %>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <div class="col-lg-6">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Leave a Review</h5>
+            <section class="detail-section" id="reviews">
+                <h3 class="block-title">
+                    <i class="fa-solid fa-star"></i> <%= avg || 'New' %>
+                    <span class="text-soft fw-normal">· <%= reviews.length %> <%= reviews.length === 1 ? 'review' : 'reviews' %></span>
+                </h3>
+
+                <% if (reviews.length) { %>
+                    <div class="review-grid">
+                        <% reviews.forEach((review) => { const name = review.author?.username || 'Former guest'; %>
+                            <div class="review">
+                                <div class="review-head">
+                                    <span class="avatar"><%= name.charAt(0).toUpperCase() %></span>
+                                    <div>
+                                        <strong><%= name %></strong>
+                                        <small class="text-soft d-block"><%= new Date(review.createdAt).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) %></small>
+                                    </div>
+                                </div>
+                                <div class="review-stars" aria-label="<%= review.rating %> out of 5 stars">
+                                    <% for (let i = 1; i <= 5; i++) { %><i class="fa-<%= i <= review.rating ? 'solid' : 'regular' %> fa-star"></i><% } %>
+                                </div>
+                                <p class="mb-0"><%= review.comment %></p>
+                                <% if (currentUser && review.author && review.author._id.toString() === currentUser._id.toString()) { %>
+                                    <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" class="mt-2">
+                                        <button class="btn btn-link btn-sm p-0 text-danger">Delete review</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <p class="text-soft">No reviews yet. Be the first to share your stay.</p>
+                <% } %>
+
+                <div class="review-form-card">
+                    <h4>Leave a review</h4>
                     <% if (currentUser) { %>
                         <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation" novalidate>
+                            <fieldset class="star-picker" aria-label="Rating">
+                                <% for (let i = 5; i >= 1; i--) { %>
+                                    <input type="radio" id="star<%= i %>" name="review[rating]" value="<%= i %>" <%= i === 5 ? 'required' : '' %> />
+                                    <label for="star<%= i %>" title="<%= i %> star<%= i > 1 ? 's' : '' %>"><i class="fa-solid fa-star"></i></label>
+                                <% } %>
+                            </fieldset>
                             <div class="mb-3">
-                                <label class="form-label">Rating</label>
-                                <select name="review[rating]" class="form-select" required>
-                                    <option value="">Choose rating</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a rating.</div>
+                                <label class="form-label" for="review-comment">Your experience</label>
+                                <textarea id="review-comment" name="review[comment]" class="form-control" rows="3" placeholder="What did you love about this stay?" required></textarea>
+                                <div class="invalid-feedback">Please pick a rating and write a comment.</div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Comment</label>
-                                <textarea name="review[comment]" class="form-control" rows="4" required></textarea>
-                                <div class="invalid-feedback">Please enter a comment.</div>
-                            </div>
-                            <button type="submit" class="btn btn-danger rounded-pill px-4 py-2">Submit Review</button>
+                            <button type="submit" class="btn btn-ink">Post review</button>
                         </form>
                     <% } else { %>
-                        <p class="text-muted">You must <a href="/login">log in</a> to add a review.</p>
+                        <p class="text-soft mb-0"><a href="/login">Log in</a> to share your experience.</p>
                     <% } %>
                 </div>
-            </div>
+            </section>
         </div>
+
+        <aside class="detail-side">
+            <div class="price-card">
+                <div class="price-card-top">
+                    <p class="mb-0" data-price="<%= listing.price || 0 %>">
+                        <% if (listing.price) { %>
+                            <strong class="price-big">₹<%= listing.price.toLocaleString('en-IN') %></strong><span class="text-soft"> / night</span>
+                        <% } else { %>
+                            <strong class="price-big">Price on request</strong>
+                        <% } %>
+                    </p>
+                    <span class="stay-rating"><i class="fa-solid fa-star"></i><%= avg || 'New' %></span>
+                </div>
+                <% if (listing.price) { %>
+                    <ul class="price-lines">
+                        <li><span>₹<%= listing.price.toLocaleString('en-IN') %> × 3 nights</span><span>₹<%= (listing.price * 3).toLocaleString('en-IN') %></span></li>
+                        <li><span>Taxes (18% GST)</span><span>₹<%= Math.round(listing.price * 3 * 0.18).toLocaleString('en-IN') %></span></li>
+                        <li class="total"><span>Total for 3 nights</span><span>₹<%= Math.round(listing.price * 3 * 1.18).toLocaleString('en-IN') %></span></li>
+                    </ul>
+                <% } %>
+                <a href="#trip" class="btn btn-accent w-100"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Plan this trip</a>
+                <% if (isOwner) { %>
+                    <div class="owner-actions">
+                        <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-ink flex-fill"><i class="fa-solid fa-pen me-1"></i>Edit</a>
+                        <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" class="flex-fill"
+                            onsubmit="return confirm('Delete this listing? This cannot be undone.')">
+                            <button class="btn btn-outline-danger w-100"><i class="fa-solid fa-trash me-1"></i>Delete</button>
+                        </form>
+                    </div>
+                <% } %>
+            </div>
+        </aside>
     </div>
-    
-
-
-
-    <% if (currentUser && listing.author && listing.author._id.toString() === currentUser._id.toString()) { %>
-    <div class="mt-3 d-flex align-items-center gap-2">
-        <a href="/listings/<%=listing._id %>/edit" class="btn btn-danger btn-sm">Edit Listing</a>
-        <form method="POST" action="/listings/<%=listing._id %>?_method=DELETE" style="display:inline-block">
-            <button class="btn btn-dark btn-sm">Delete this listing</button>
-        </form>
-    </div>
-    <% } %>
-</div>
+</article>
 
 <% if (mapboxToken) { %>
 <% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">') %>

@@ -1,42 +1,29 @@
 <% layout("layouts/boilerplate") %>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="p-5">
-                <h1 class="mb-4 fw-bold">Login on Wanderlust</h1>
-                <form action="/login" method="POST" class="needs-validation" novalidate>
-                    <div class="mb-4">
-                        <label for="username" class="form-label">Username</label>
-                        <input name="username" id="username" type="text" class="form-control form-control-lg" required />
-                        <div class="valid-feedback d-block mt-2 text-success">Looks good!</div>
-                        <div class="invalid-feedback d-block mt-2 text-danger">Please enter your username.</div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="password" class="form-label">Password</label>
-                        <input name="password" id="password" type="password" class="form-control form-control-lg" required />
-                        <div class="valid-feedback d-block mt-2 text-success">Looks good!</div>
-                        <div class="invalid-feedback d-block mt-2 text-danger">Please enter your password.</div>
-                    </div>
-
-                    <button class="btn btn-success btn-lg w-100 mt-2" type="submit">Login</button>
-                </form>
-                <p class="text-center mt-4">
-                    Don't have an account? <a href="/signup" class="text-decoration-none">Sign Up</a>
-                </p>
+<section class="shell auth-page">
+    <div class="auth-card">
+        <div class="auth-visual" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=70')">
+            <div class="auth-visual-text">
+                <p class="eyebrow eyebrow-light">WanderLust</p>
+                <h2>Welcome back. Your next escape is waiting.</h2>
             </div>
         </div>
+        <div class="auth-form">
+            <h1 class="page-title">Log in</h1>
+            <p class="text-soft mb-4">Good to see you again.</p>
+            <form action="/login" method="POST" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input name="username" id="username" type="text" class="form-control form-control-lg" autocomplete="username" required />
+                    <div class="invalid-feedback">Please enter your username.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input name="password" id="password" type="password" class="form-control form-control-lg" autocomplete="current-password" required />
+                    <div class="invalid-feedback">Please enter your password.</div>
+                </div>
+                <button class="btn btn-accent w-100 btn-lg-soft" type="submit">Log in</button>
+            </form>
+            <p class="auth-switch">New to WanderLust? <a href="/signup">Create an account</a></p>
+        </div>
     </div>
-</div>
-
-<style>
-    .form-control-lg {
-        font-size: 1rem;
-        padding: 0.75rem 1rem;
-    }
-    
-    .btn-lg {
-        font-size: 1rem;
-        padding: 0.75rem 1rem;
-    }
-</style>
+</section>

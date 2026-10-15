@@ -63,7 +63,7 @@ module.exports.index = wrapAsync(async (req, res) => {
         filter.$or = [{ title: pattern }, { location: pattern }, { country: pattern }];
     }
 
-    const allListings = await Listing.find(filter);
+    const allListings = await Listing.find(filter).populate('reviews', 'rating');
     res.render('listings/index.ejs', {
         allListings,
         mapListings: buildMapListings(allListings),

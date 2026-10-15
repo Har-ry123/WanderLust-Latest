@@ -1,51 +1,79 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-body-light border-bottom sticky-top py-3">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center gap-3" href="/">
-      <span class="brand-icon"><i class="fa-solid fa-compass"></i></span>
-      <span class="brand-title">Explore</span>
-    </a>
+<%
+  const currentAsk = typeof ask !== 'undefined' ? ask : '';
+  const categories = [
+    { label: 'Trending', icon: 'fa-fire', ask: '' },
+    { label: 'Beaches', icon: 'fa-umbrella-beach', ask: 'beach' },
+    { label: 'Mountains', icon: 'fa-mountain-sun', ask: 'mountain' },
+    { label: 'Cabins', icon: 'fa-house-chimney', ask: 'cabin' },
+    { label: 'Iconic cities', icon: 'fa-city', ask: 'city' },
+    { label: 'Castles', icon: 'fa-chess-rook', ask: 'castle' },
+    { label: 'Amazing pools', icon: 'fa-water-ladder', ask: 'pool' },
+    { label: 'Islands', icon: 'fa-sun', ask: 'island' },
+    { label: 'Lakefront', icon: 'fa-water', ask: 'lake' },
+    { label: 'Camping', icon: 'fa-campground', ask: 'camping' },
+    { label: 'Farms', icon: 'fa-tractor', ask: 'farm' },
+    { label: 'Luxe', icon: 'fa-gem', ask: 'luxury' },
+  ];
+  const onListings = typeof allListings !== 'undefined';
+%>
+<header class="site-header">
+  <nav class="navbar">
+    <div class="shell d-flex align-items-center gap-3 w-100">
+      <a class="brand" href="/listings">
+        <span class="brand-mark"><i class="fa-solid fa-compass"></i></span>
+        <span class="brand-name">WanderLust</span>
+      </a>
 
-    <form class="search-form d-none d-lg-flex align-items-center flex-grow-1 mx-4" action="/listings" method="GET">
-      <div class="input-group search-input-group w-100">
-        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass"></i></span>
-        <input type="search" name="search" class="form-control rounded-pill border-start-0" placeholder="Search destinations" aria-label="Search destinations">
+      <form class="nav-search d-none d-lg-flex" action="/listings" method="GET" role="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" name="ask" value="<%= currentAsk %>" placeholder="Where to? Try “beach villa in India under 5k”" aria-label="Search stays">
+        <button type="submit" aria-label="Search"><i class="fa-solid fa-arrow-right"></i></button>
+      </form>
+
+      <div class="nav-actions ms-auto">
+        <a class="nav-host d-none d-md-inline-flex" href="/listings/new">
+          <i class="fa-solid fa-plus"></i>Harry's Horizon
+        </a>
+        <% if (!currentUser) { %>
+          <a class="nav-link-plain" href="/login">Log in</a>
+          <a class="btn btn-ink" href="/signup">Sign up</a>
+        <% } else { %>
+          <div class="dropdown">
+            <button class="user-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fa-solid fa-bars"></i>
+              <span class="avatar"><%= currentUser.username.charAt(0).toUpperCase() %></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end user-menu">
+              <li class="dropdown-header">Signed in as <strong><%= currentUser.username %></strong></li>
+              <li><a class="dropdown-item" href="/listings/new"><i class="fa-solid fa-plus"></i>Add a listing</a></li>
+              <li><a class="dropdown-item" href="/listings"><i class="fa-solid fa-compass"></i>Explore stays</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i>Log out</a></li>
+            </ul>
+          </div>
+        <% } %>
       </div>
-      <button class="btn btn-danger ms-3 px-4 rounded-pill" type="submit">Search</button>
-    </form>
+    </div>
+  </nav>
 
-    <div class="d-flex align-items-center gap-3">
-      <a class="nav-action-link harrys-link d-none d-lg-inline" href="/listings/new">Harry's Horizon</a>
-      <% if (!currentUser) { %>
-        <a class="btn btn-danger px-4" href="/login">Login</a>
-        <a class="btn btn-danger px-4" href="/signup">Sign Up</a>
-      <% } else { %>
-        <span class="navbar-text text-dark d-none d-lg-inline">Hello, <%= currentUser.username %></span>
-        <a class="btn btn-outline-danger px-4" href="/logout">Logout</a>
-      <% } %>
+  <% if (onListings) { %>
+  <div class="category-bar">
+    <div class="shell d-flex align-items-center gap-4">
+      <div class="category-scroll">
+        <% categories.forEach((c) => { const active = currentAsk.toLowerCase() === c.ask; %>
+          <a class="category<%= active ? ' active' : '' %>" href="/listings<%= c.ask ? `?ask=${encodeURIComponent(c.ask)}` : '' %>">
+            <i class="fa-solid <%= c.icon %>"></i>
+            <span><%= c.label %></span>
+          </a>
+        <% }) %>
+      </div>
+      <label class="tax-toggle d-none d-md-flex" for="displayTotalAfterTaxes">
+        <span>Show total incl. taxes</span>
+        <span class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="displayTotalAfterTaxes">
+        </span>
+      </label>
     </div>
   </div>
-</nav>
-
-<div class="category-bar bg-white border-bottom py-3">
-  <div class="container">
-    <div class="d-flex flex-nowrap align-items-center justify-content-between gap-3">
-      <div class="category-links d-flex flex-wrap gap-2">
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-fire"></i>Trending</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-bed"></i>Rooms</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-city"></i>Iconic Cities</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-mountain"></i>Mountains</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-chess-rook"></i>Castles</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-water-ladder"></i>Amazing Pools</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-campground"></i>Camping</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-tractor"></i>Farms</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-snowflake"></i>Arctic</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-person-swimming"></i>Domes</a>
-        <a class="category-item btn btn-sm btn-outline-secondary d-flex align-items-center gap-2" href="#"><i class="fa-solid fa-ship"></i>Boats</a>
-      </div>
-      <div class="form-check form-switch mb-0">
-        <input class="form-check-input" type="checkbox" id="displayTotalAfterTaxes">
-        <label class="form-check-label small mb-0" for="displayTotalAfterTaxes">Display total after taxes</label>
-      </div>
-    </div>
-  </div>
-</div>
+  <% } %>
+</header>
