@@ -43,24 +43,29 @@
 
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-    const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl,
-        marker: false,
-    });
+    // The search box is a separate plugin; the map still works without it
+    if (typeof MapboxGeocoder !== 'undefined') {
+        const geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl,
+            marker: false,
+        });
 
-    map.addControl(geocoder);
+        map.addControl(geocoder);
 
-    geocoder.on('result', (event) => {
-        setCoordinates(event.result.center);
-        if (locationInput && !locationInput.value) {
-            locationInput.value = event.result.text || '';
-        }
-        if (countryInput && !countryInput.value && event.result.context) {
-            const country = event.result.context.find((item) => item.id.startsWith('country'));
-            if (country) countryInput.value = country.text;
-        }
-    });
+        geocoder.on('result', (event) => {
+            setCoordinates(event.result.center);
+            if (locationInput && !locationInput.value) {
+                locationInput.value = event.result.text || '';
+            }
+            if (countryInput && !countryInput.value && event.result.context) {
+                const country = event.result.context.find((item) => item.id.startsWith('country'));
+                if (country) countryInput.value = country.text;
+            }
+        });
+    } else {
+        console.warn('Mapbox geocoder plugin did not load; map search box disabled.');
+    }
 
     async function geocodeFromFields() {
         const location = locationInput?.value?.trim();

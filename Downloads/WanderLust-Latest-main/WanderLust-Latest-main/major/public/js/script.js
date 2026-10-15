@@ -15,7 +15,7 @@
       form.classList.add('was-validated')
     }, false)
   })
-})()
+})();
 
 // "Show total incl. taxes" switch on the listings page (18% GST)
 (() => {

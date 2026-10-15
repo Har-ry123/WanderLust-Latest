@@ -102,9 +102,9 @@
 
 <% if (mapboxToken) { %>
 <% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet">') %>
-<% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet">') %>
+<% block('head').append('<link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" rel="stylesheet">') %>
 <% block('scripts').append('<script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>') %>
-<% block('scripts').append('<script src="https://api.mapbox.com/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>') %>
+<% block('scripts').append('<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>') %>
 <% block('scripts').append('<script src="/js/geocode.js"></script>') %>
 <% block('scripts').append('<script src="/js/mapForm.js"></script>') %>
 <script>
