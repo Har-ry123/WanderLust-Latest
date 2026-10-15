@@ -61,20 +61,14 @@ body{
     color: var(--accent);
 }
 
-.search-form .input-group {
-    min-width: 420px;
-    max-width: 580px;
+/* search sits inline between the brand and the buttons (flex-grow-1 in the
+   markup); absolute centering made it overlap the buttons on the right */
+.search-form {
+    justify-content: center;
 }
 
-/* center the search form in the navbar */
-.search-form {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    width: 60%;
-    max-width: 680px;
+.search-form .input-group {
+    max-width: 580px;
 }
 
 .search-input-group .form-control {
