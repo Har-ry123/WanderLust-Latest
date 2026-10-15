@@ -3,7 +3,7 @@
   "private": true,
   "description": "Runs the WanderLust app from the repository root",
   "scripts": {
-    "postinstall": "npm install --prefix Downloads/WanderLust-Latest-main/WanderLust-Latest-main/major",
+    "postinstall": "cd Downloads/WanderLust-Latest-main/WanderLust-Latest-main/major && npm install",
     "start": "node Downloads/WanderLust-Latest-main/WanderLust-Latest-main/app.js",
     "seed": "node Downloads/WanderLust-Latest-main/WanderLust-Latest-main/major/init/index.js"
   }

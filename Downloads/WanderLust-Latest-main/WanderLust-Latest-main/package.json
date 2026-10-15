@@ -5,7 +5,7 @@
   },
   "scripts": {
     "start": "node app.js",
-    "postinstall": "npm install --prefix major",
+    "postinstall": "cd major && npm install",
     "seed": "node major/init/index.js"
   }
 }
