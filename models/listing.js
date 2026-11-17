@@ -43,6 +43,11 @@ const listingSchema = new Schema({
         ref: 'User',
         required: true
     },
+    // demo listings are visible to everyone; all other listings are private to their author
+    isDemo: {
+        type: Boolean,
+        default: false,
+    },
     reviews:[
         {
             type:Schema.Types.ObjectId,

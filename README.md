@@ -39,8 +39,6 @@ Open http://localhost:8088.
 | `OLLAMA_MODEL` / `OLLAMA_URL` | no | Local AI model (default `llama3.2` at `http://127.0.0.1:11434`) |
 | `ANTHROPIC_API_KEY` | no | Use Claude for the AI features instead of Ollama (paid) |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | no | Free hosted AI for the writer, trip planner and search (default model `gemini-3.5-flash-lite`). Set this on Render |
-| `ADMIN_USERNAMES` | no | Comma-separated usernames that can edit/delete any listing, e.g. the seeded demo listings |
-| `ANYONE_CAN_MANAGE` | no | Default `true`: every logged-in user can edit/delete any listing. Set `false` so only owners and `ADMIN_USERNAMES` can |
 | `NODE_ENV` | in production | Set to `production` for secure cookies |
 | `PORT` | no | Port to listen on (default `8088`) |
 

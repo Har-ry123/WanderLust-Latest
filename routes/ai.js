@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Listing = require('../models/listing.js');
+const { canView } = require('../utils/access.js');
 const { describeListing, planTrip } = require('../services/ai.js');
 
 // JSON endpoints used by public/js/ai.js; errors are returned as JSON too
@@ -24,7 +25,7 @@ router.post('/describe', jsonRoute(async (req) => {
 
 router.post('/trip/:id', jsonRoute(async (req) => {
     const listing = await Listing.findById(req.params.id);
-    if (!listing) {
+    if (!listing || !canView(listing, req.user)) {
         const err = new Error('Listing not found.');
         err.statusCode = 404;
         throw err;

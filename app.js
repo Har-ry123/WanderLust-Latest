@@ -7,7 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 
 
-const { connectDB, dbURL } = require('./config/db.js');
+const { connectDB, dbURL, markDemoListings } = require('./config/db.js');
 const { sessionOptions } = require('./config/session.js');
 const { configurePassport } = require('./config/passport.js');
 const { flash } = require('./middleware/flash.js');
@@ -37,6 +37,9 @@ getAiStatus().then(({ label, canPlan }) => {
 
 connectDB()
     .then(() => console.log('connected to database'))
+    .then(() =>
+        markDemoListings().catch((err) => console.error('Could not mark demo listings:', err.message))
+    )
     .catch((err) => {
         // fail loudly so the host shows the error instead of serving a broken site
         console.error('Error connecting to database:', err.message);

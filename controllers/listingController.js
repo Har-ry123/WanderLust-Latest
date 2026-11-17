@@ -1,6 +1,7 @@
 const Listing = require('../models/listing.js');
 const ExpressError = require('../utils/ExpressError.js');
 const wrapAsync = require('../utils/wrapAsync.js');
+const { visibleFilter } = require('../utils/access.js');
 const { resolveGeometry, hasValidCoordinates } = require('../utils/geocoding.js');
 const { smartSearch } = require('../services/ai.js');
 const { expandKeyword } = require('../services/searchRules.js');
@@ -27,6 +28,8 @@ module.exports.index = wrapAsync(async (req, res) => {
     // "My listings": only the logged-in user's own stays
     const mine = Boolean(req.user && req.query.mine);
     if (mine) filter.author = req.user._id;
+    // everyone sees demo listings; nobody sees another user's private listings
+    filter.$and = [visibleFilter(req.user)];
 
     if (ask) {
         const [knownCountries, knownLocations] = await Promise.all([

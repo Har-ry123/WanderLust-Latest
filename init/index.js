@@ -31,6 +31,7 @@ const initDB = async () => {
         listingsWithGeometry.push({
             ...listing,
             author: author._id,
+            isDemo: true,
             ...(geometry && { geometry }),
         });
     }
