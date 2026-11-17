@@ -14,7 +14,7 @@ Built with **Node.js, Express 5, MongoDB (Mongoose) and EJS**.
 - **AI helpers** (free by default)
   - *Write with AI* – drafts a listing description
   - *Trip planner* – a 3-day plan with local tips for any listing
-  - Runs on a local [Ollama](https://ollama.com) model; falls back to built-in rules when no AI is available; optionally uses Claude with `ANTHROPIC_API_KEY`
+  - Uses free Google Gemini (`GEMINI_API_KEY`) when deployed, or a local [Ollama](https://ollama.com) model; falls back to built-in rules when no AI is available; optionally uses Claude with `ANTHROPIC_API_KEY`
 - **Category tabs**, a *show prices incl. taxes* switch, and a live preview when creating a listing
 
 ## Getting started
@@ -38,6 +38,7 @@ Open http://localhost:8088.
 | `MAPBOX_TOKEN` | no | Mapbox public token. Without it, free OpenStreetMap maps are used |
 | `OLLAMA_MODEL` / `OLLAMA_URL` | no | Local AI model (default `llama3.2` at `http://127.0.0.1:11434`) |
 | `ANTHROPIC_API_KEY` | no | Use Claude for the AI features instead of Ollama (paid) |
+| `GEMINI_API_KEY` / `GEMINI_MODEL` | no | Free hosted AI for the writer, trip planner and search (default model `gemini-3.5-flash-lite`). Set this on Render |
 | `NODE_ENV` | in production | Set to `production` for secure cookies |
 | `PORT` | no | Port to listen on (default `8088`) |
 
@@ -61,7 +62,7 @@ npm run seed
 - **Start command:** `npm start`
 - Set `NODE_ENV=production`, `ATLASDB_URL`, `SECRET_KEY` and optionally `MAPBOX_TOKEN` in the host's environment settings
 - In MongoDB Atlas → *Network Access*, allow `0.0.0.0/0` (hosting providers don't have fixed IPs)
-- Ollama doesn't run on most hosts, so online the AI features use the built-in rules unless `ANTHROPIC_API_KEY` is set
+- Ollama does not run on most hosts, so online set `GEMINI_API_KEY` (free) or `ANTHROPIC_API_KEY`; otherwise AI features use the built-in rules
 
 ## Project structure
 
@@ -72,7 +73,7 @@ controllers/      route handlers (listings, reviews, users)
 routes/           URL routes, including /ai
 models/           Mongoose models: Listing, Review, User
 middleware/       auth, ownership checks, validation, errors
-services/         AI providers (Claude, Ollama) and search rules
+services/         AI providers (Claude, Gemini, Ollama) and search rules
 utils/            geocoding and helpers
 views/            EJS templates
 public/           CSS and browser JavaScript

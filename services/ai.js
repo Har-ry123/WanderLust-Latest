@@ -1,12 +1,14 @@
 // AI features with free options. Provider order:
 //   1. Claude, if ANTHROPIC_API_KEY is set (paid)
-//   2. Ollama running on this computer (free, local)
-//   3. Built-in rules and templates (free, no AI)
+//   2. Gemini, if GEMINI_API_KEY is set (free tier, works when deployed)
+//   3. Ollama running on this computer (free, local)
+//   4. Built-in rules and templates (free, no AI)
 const Anthropic = require('@anthropic-ai/sdk');
 const { z } = require('zod');
 const { zodOutputFormat } = require('@anthropic-ai/sdk/helpers/zod');
 const ExpressError = require('../utils/ExpressError.js');
 const { isOllamaAvailable, ollamaText, ollamaJSON, OLLAMA_MODEL } = require('./ollama.js');
+const { geminiEnabled, geminiText, geminiJSON, GEMINI_MODEL } = require('./gemini.js');
 const { parseSearchWithRules, GENERIC_WORDS } = require('./searchRules.js');
 
 const CLAUDE_MODEL = process.env.AI_MODEL || 'claude-opus-5-5';
@@ -16,6 +18,7 @@ const claudeEnabled = () =>
 
 module.exports.getAiStatus = async () => {
     if (claudeEnabled()) return { provider: 'claude', label: 'Claude', canPlan: true };
+    if (geminiEnabled()) return { provider: 'gemini', label: `Gemini (${GEMINI_MODEL})`, canPlan: true };
     if (await isOllamaAvailable()) {
         return { provider: 'ollama', label: `${OLLAMA_MODEL} on your PC (free)`, canPlan: true };
     }
@@ -84,9 +87,10 @@ const claudeText = async (system, prompt) => {
 const generateText = async (system, prompt) => {
     const { provider } = await module.exports.getAiStatus();
     if (provider === 'claude') return claudeText(system, prompt);
+    if (provider === 'gemini') return geminiText(system, prompt);
     if (provider === 'ollama') return ollamaText(system, prompt);
     throw new ExpressError(
-        'Free AI is off. Start Ollama on this computer (or add ANTHROPIC_API_KEY) to use this.',
+        'AI is off. Set GEMINI_API_KEY (free), start Ollama locally, or add ANTHROPIC_API_KEY to use this.',
         503
     );
 };
@@ -233,7 +237,9 @@ module.exports.smartSearch = async (query, context) => {
         const ai =
             provider === 'claude'
                 ? await claudeSearch(query)
-                : await ollamaJSON(SEARCH_SYSTEM, query, SEARCH_JSON_SCHEMA);
+                : provider === 'gemini'
+                  ? await geminiJSON(SEARCH_SYSTEM, query, SEARCH_JSON_SCHEMA)
+                  : await ollamaJSON(SEARCH_SYSTEM, query, SEARCH_JSON_SCHEMA);
         return { ...mergeFilters(rules, ai, query, context), source: provider };
     } catch (err) {
         console.error('AI search failed, using built-in rules:', err.message);

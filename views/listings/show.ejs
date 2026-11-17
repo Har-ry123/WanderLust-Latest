@@ -63,7 +63,7 @@
                         <% } %>
                     </div>
                     <% if (!ai.canPlan) { %>
-                        <p class="text-soft mb-0">Get a free personalised plan for <%= listing.location %>: start <a href="https://ollama.com" target="_blank" rel="noopener noreferrer">Ollama</a> on this computer and refresh the page.</p>
+                        <p class="text-soft mb-0">Get a free personalised plan for <%= listing.location %>: the AI trip planner is not available right now. Please check back soon.</p>
                     <% } else if (!currentUser) { %>
                         <p class="text-soft mb-0"><a href="/login">Log in</a> to get a personalised plan for <%= listing.location %>, with local tips.</p>
                     <% } else { %>

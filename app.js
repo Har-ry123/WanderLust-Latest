@@ -31,7 +31,7 @@ if (!MAPBOX_TOKEN) {
 getAiStatus().then(({ label, canPlan }) => {
     console.log(`AI features: ${label}`);
     if (!canPlan) {
-        console.log('Tip: start Ollama (free, https://ollama.com) with "ollama pull llama3.2" for the AI writer and trip planner.');
+        console.log('Tip: set GEMINI_API_KEY (free, https://aistudio.google.com/apikey) for the AI writer and trip planner, or start Ollama locally.');
     }
 });
 
