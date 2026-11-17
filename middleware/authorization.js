@@ -1,6 +1,7 @@
 const Listing = require('../models/listing.js');
 const Review = require('../models/review.js');
 const wrapAsync = require('../utils/wrapAsync.js');
+const { isAdmin } = require('../utils/admin.js');
 
 module.exports.isAuthor = wrapAsync(async (req, res, next) => {
     const { id } = req.params;
@@ -9,7 +10,7 @@ module.exports.isAuthor = wrapAsync(async (req, res, next) => {
         req.session.error = 'Listing you requested does not exist!';
         return res.redirect('/listings');
     }
-    if (!req.user || !listing.author.equals(req.user._id)) {
+    if (!req.user || (!listing.author.equals(req.user._id) && !isAdmin(req.user))) {
         req.session.error = 'You do not have permission to do that!';
         return res.redirect(`/listings/${id}`);
     }

@@ -4,7 +4,7 @@
   const showImage = listing?.image?.url || (typeof listing.image === 'string' ? listing.image : FALLBACK_IMAGE);
   const reviews = listing.reviews || [];
   const avg = reviews.length ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1) : null;
-  const isOwner = currentUser && listing.author && listing.author._id.toString() === currentUser._id.toString();
+  const isOwner = currentUser && ((listing.author && listing.author._id.toString() === currentUser._id.toString()) || isAdmin);
   const hostName = listing.author?.username || 'WanderLust';
 %>
 

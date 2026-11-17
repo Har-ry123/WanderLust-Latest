@@ -24,6 +24,9 @@ module.exports.index = wrapAsync(async (req, res) => {
     const ask = (req.query.ask || '').trim().slice(0, 300);
     const filter = {};
     let aiSearch = null;
+    // "My listings": only the logged-in user's own stays
+    const mine = Boolean(req.user && req.query.mine);
+    if (mine) filter.author = req.user._id;
 
     if (ask) {
         const [knownCountries, knownLocations] = await Promise.all([
